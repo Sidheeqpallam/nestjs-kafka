@@ -8,17 +8,17 @@ async function bootstrap() {
     transport: Transport.KAFKA,
     options: {
       client: {
+        clientId: 'client-b-consumer',
         brokers: ['localhost:9092']
       },
       consumer: {
-        groupId: 'consumer-group-id',
+        groupId: 'client-b-group',
         retry: {
           retries: 3,
           initialRetryTime: 1000,
           maxRetryTime: 3000,
         },
       },
-
     }
   });
   await app.listen();

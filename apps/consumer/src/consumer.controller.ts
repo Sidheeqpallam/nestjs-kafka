@@ -1,17 +1,19 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ConsumerService } from './consumer.service';
-import { ClientKafka, EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { KafkaTopics } from 'apps/kafka/kafka-topics';
+import { KafkaService } from 'apps/kafka/kafka.service';
 
 @Controller()
 export class ConsumerController {
   constructor(
     private readonly consumerService: ConsumerService,
-    @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka
+    private readonly kafkaService: KafkaService
   ) { }
 
 
-  @EventPattern('client-messages')
+  @EventPattern(KafkaTopics.MESSAGE)
   async handleOrderCreated(data: any) {
     try {
       // Filter for messages addressed to clientB
@@ -20,14 +22,13 @@ export class ConsumerController {
         return;
       }
 
-      // Log or store
       console.log('✅ Message received by clientB:', data);
       await this.consumerService.handleMessageCreated(data)
     } catch (error) {
       console.log('error in send message', error)
       // Send to DLQ topic
       await firstValueFrom(
-        this.kafkaClient.emit('client-messages-dlq', {
+        this.kafkaService.emit(KafkaTopics.DLQ, {
           key: data.to,
           value: JSON.stringify({
             ...data,
@@ -39,10 +40,9 @@ export class ConsumerController {
     }
   }
 
-  @MessagePattern('client-messages-dlq')
+  @MessagePattern(KafkaTopics.DLQ)
   handleDlq(@Payload() message: any) {
     console.warn('DLQ Received:', message);
     this.consumerService.handleMessageDlqCreated(message)
-    // Save to special MongoDB collection for failed messages
   }
 } 

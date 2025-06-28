@@ -1,15 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './app.dto';
-import { ClientKafka } from '@nestjs/microservices';
 import { SendMessageEvent } from './send-message.event';
+import { KafkaService } from 'apps/kafka/kafka.service';
 
 @Injectable()
 export class AppService {
-  constructor(
-    @Inject('CONSUMER') private readonly consumerProxyClient: ClientKafka
-  ) { }
+  constructor(private readonly kafkaService: KafkaService) { }
+
 
   createOrder(data: CreateMessageDto) {
-    this.consumerProxyClient.emit('client-messages', new SendMessageEvent(data.from, data.to, data.message))
+    this.kafkaService.emit('client-messages', new SendMessageEvent(data.from, data.to, data.message))
   }
 }

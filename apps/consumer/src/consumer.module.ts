@@ -4,12 +4,13 @@ import { ConsumerController } from './consumer.controller';
 import { ConsumerService } from './consumer.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessageSchema } from './schemas/message.schema';
-import { ClientKafka, ClientsModule, Transport } from '@nestjs/microservices';
 import { MessageDlqSchema } from './schemas/message-dlq.schema';
+import { KafkaModule } from 'apps/kafka/kafka.module';
 
 
 @Module({
   imports: [
+    KafkaModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -23,21 +24,6 @@ import { MessageDlqSchema } from './schemas/message-dlq.schema';
     MongooseModule.forFeature([
       { name: 'Message', schema: MessageSchema },
       { name: 'MessageDlq', schema: MessageDlqSchema }
-    ]),
-    ClientsModule.register([
-      {
-        name: 'KAFKA_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            brokers: ['localhost:9092'],
-            clientId: 'client-b',
-          },
-          consumer: {
-            groupId: 'dlq-producer',
-          },
-        },
-      },
     ]),
   ],
   controllers: [ConsumerController],

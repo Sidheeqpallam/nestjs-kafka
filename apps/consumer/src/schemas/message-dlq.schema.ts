@@ -11,6 +11,7 @@ export class MessageDlq extends Document {
   message: string
 
   @Prop() reason: string;
+  @Prop() failedAt: string
   @Prop({ required: true, default: new Date() })
   send_time: string
 
