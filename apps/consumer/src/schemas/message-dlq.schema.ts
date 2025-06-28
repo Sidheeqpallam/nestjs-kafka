@@ -7,7 +7,7 @@ import { Document } from 'mongoose';
 export class MessageDlq extends Document {
   @Prop() from: string;
   @Prop() to: string;
-  @Prop({ required: true })
+  @Prop({ required: false })
   message: string
 
   @Prop() reason: string;

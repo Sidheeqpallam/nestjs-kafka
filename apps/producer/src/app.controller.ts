@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateMessageDto } from './app.dto';
 
@@ -7,8 +7,18 @@ export class AppController {
   constructor(private readonly appService: AppService) { }
 
   @Post('send-message')
-  createOrder(@Body() payload: CreateMessageDto) {
-    this.appService.createOrder(payload)
-    return 'hi there'
+  async createMessage(@Body() payload: CreateMessageDto) {
+    const res = await this.appService.createMessage(payload)
+    return res
+  }
+
+  @Get('messages')
+  async retrieveMessages() {
+    return await this.appService.retrieveMessages()
+  }
+
+  @Get('failed-messages')
+  async retrieveFailedMessages() {
+    return await this.appService.retrieveFailedMessages()
   }
 }

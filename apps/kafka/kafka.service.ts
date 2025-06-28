@@ -1,17 +1,17 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class KafkaService implements OnModuleInit {
+export class KafkaService {
   constructor(@Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka) { }
 
-  async onModuleInit() {
-    await this.kafkaClient.connect();
+  emit(topic: string, message: any) {
+    return this.kafkaClient.emit(topic, message);
   }
 
-  emit(topic: string, message: any): Observable<any> {
-    return this.kafkaClient.emit(topic, message);
+  send<T = any, R = any>(topic: string, message: T): Observable<R> {
+    return this.kafkaClient.send(topic, message);
   }
 
   getClient(): ClientKafka {

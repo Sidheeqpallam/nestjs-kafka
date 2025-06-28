@@ -13,7 +13,13 @@ import { KafkaService } from './kafka.service';
             clientId: 'my-app-client',
             brokers: ['localhost:9092'],
           },
-          producerOnlyMode: true,
+          consumer: {
+            allowAutoTopicCreation: true,
+            groupId: 'my-app-consumer-group',
+          },
+          producer: {
+            allowAutoTopicCreation: true
+          }
         },
       },
     ]),

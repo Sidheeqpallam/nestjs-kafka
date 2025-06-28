@@ -22,4 +22,12 @@ export class ConsumerService {
     console.log('created DLQ Message: ', createdMessage)
     return createdMessage.save()
   }
+
+  async sendMessages() {
+    return await this.messageModal.find()
+  }
+
+  async sendFailedMessages() {
+    return await this.messageDlqModal.find()
+  }
 }

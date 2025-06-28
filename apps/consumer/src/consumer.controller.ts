@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { ConsumerService } from './consumer.service';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { KafkaTopics } from 'apps/kafka/kafka-topics';
 import { KafkaService } from 'apps/kafka/kafka.service';
@@ -12,8 +12,7 @@ export class ConsumerController {
     private readonly kafkaService: KafkaService
   ) { }
 
-
-  @EventPattern(KafkaTopics.MESSAGE)
+  @MessagePattern(KafkaTopics.MESSAGE)
   async handleOrderCreated(data: any) {
     try {
       // Filter for messages addressed to clientB
@@ -24,6 +23,7 @@ export class ConsumerController {
 
       console.log('✅ Message received by clientB:', data);
       await this.consumerService.handleMessageCreated(data)
+      return 'message created.'
     } catch (error) {
       console.log('error in send message', error)
       // Send to DLQ topic
@@ -37,6 +37,7 @@ export class ConsumerController {
           }),
         })
       );
+      return 'Failed to create message.'
     }
   }
 
@@ -44,5 +45,15 @@ export class ConsumerController {
   handleDlq(@Payload() message: any) {
     console.warn('DLQ Received:', message);
     this.consumerService.handleMessageDlqCreated(message)
+  }
+
+  @MessagePattern(KafkaTopics.MESSAGE_GET)
+  async sendMessages() {
+    return await this.consumerService.sendMessages()
+  }
+
+  @MessagePattern(KafkaTopics.MESSAGE_GET_FAILED)
+  async sendFailedMessages() {
+    return await this.consumerService.sendFailedMessages()
   }
 } 

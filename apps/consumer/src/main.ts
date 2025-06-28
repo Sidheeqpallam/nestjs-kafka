@@ -9,9 +9,10 @@ async function bootstrap() {
     options: {
       client: {
         clientId: 'client-b-consumer',
-        brokers: ['localhost:9092']
+        brokers: ['localhost:9092'],
       },
       consumer: {
+        allowAutoTopicCreation: true,
         groupId: 'client-b-group',
         retry: {
           retries: 3,

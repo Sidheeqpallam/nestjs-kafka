@@ -27,8 +27,6 @@ import { KafkaModule } from 'apps/kafka/kafka.module';
     ]),
   ],
   controllers: [ConsumerController],
-  providers: [
-
-    ConsumerService],
+  providers: [ConsumerService],
 })
 export class ConsumerModule { }
