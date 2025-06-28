@@ -1,98 +1,240 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Client-to-Client Messaging using Kafka and NestJS
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust event-driven messaging system that enables asynchronous communication between clients using Apache Kafka and NestJS microservices architecture.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🎯 Project Overview
 
-## Description
+This project demonstrates the implementation of a client-to-client messaging system where multiple services communicate through Kafka topics. The system supports message routing, persistence, retry mechanisms, and dead-letter queue strategies.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Key Features
 
-## Project setup
+- **Event-Driven Architecture**: Asynchronous communication using Kafka
+- **Microservices Design**: Separate client services for scalability
+- **Message Persistence**: MongoDB integration for message storage
+- **Retry Logic**: Built-in retry mechanism with dead-letter queue
+- **Message Filtering**: Clients receive only relevant messages
+- **Docker Support**: Easy local development setup
 
-```bash
-$ pnpm install
+## 🏗️ Architecture
+
+```
+┌─────────────┐    Kafka Topic      ┌─────────────┐
+│   Client A  │ ──────────────────▶ │   Client B  │
+│ (Producer)  │   client-messages   │ (Consumer)  │
+└─────────────┘                     └─────────────┘
+                                          │
+                                          ▼
+┌─────────────────────────────────────────────────┐
+│                 MongoDB                         │
+│            (Message Storage)                    │
+└─────────────────────────────────────────────────┘
 ```
 
-## Compile and run the project
+## 🚀 Getting Started
 
-```bash
-# development
-$ pnpm run start
+### Prerequisites
 
-# watch mode
-$ pnpm run start:dev
+- Node.js (v16 or higher)
+- Docker & Docker Compose
+- PNPM package manager
 
-# production mode
-$ pnpm run start:prod
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd client-messaging-kafka
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Start Kafka infrastructure**
+   ```bash
+   docker-compose up -d
+   ```
+   
+   This will start:
+   - Zookeeper
+   - Kafka Broker
+
+4. **Set up environment variables**
+   
+   Create a `.env` file in the root directory:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/messaging-db
+   PORT=3000
+   KAFKA_BROKER=localhost:9092
+   ```
+
+5. **Start the application**
+   ```bash
+   pnpm start
+   ```
+
+   For development with hot reload:
+   ```bash
+   pnpm start:dev
+   ```
+
+## 📡 API Endpoints
+
+### Send Message
+
+**POST** `/send-message`
+
+Send a message from one client to another through Kafka.
+
+**Request Body:**
+```json
+{
+  "from": "clientA",
+  "to": "clientB", 
+  "message": "Hi there!"
+}
 ```
 
-## Run tests
-
+**Responses:**
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+message created.
+```
+***or***
+```bash
+Failed to create message.
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+**Example cURL:**
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+curl -X POST http://localhost:3000/send-message \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "clientA",
+    "to": "clientB",
+    "message": "Hello from Client A!"
+  }'
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Resources
+### Retrieve messages
 
-Check out a few resources that may come in handy when working with NestJS:
+**GET** `/messages`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Retrieve all successful messages
 
-## Support
+**Response:**
+```json
+[
+  {
+        "_id": "68600e63b0acca2d65e89056",
+        "from": "clientA",
+        "to": "clientB",
+        "message": "Hi there!",
+        "send_time": "Sat Jun 28 2025 21:14:48 GMT+0530 (India Standard Time)",
+        "__v": 0
+    },
+  {
+        "_id": "68600e63b0acca2d65e89056",
+        "from": "clientA",
+        "to": "clientB",
+        "message": "Hi there!",
+        "send_time": "Sat Jun 28 2025 21:14:48 GMT+0530 (India Standard Time)",
+        "__v": 0
+    },    
+]
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Retrieve failed messages
 
-## Stay in touch
+**GET** `/failed-messages`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Retrieve all failed messages
 
-## License
+**Response:**
+```json
+[
+ {
+        "_id": "68600e63b0acca2d65e89056",
+        "from": "clientA",
+        "to": "clientB",
+        "message": "",
+        "reason": "Message validation failed: message: Path `message` is required.",
+        "failedAt": "2025-06-28T15:46:40.591Z",
+        "send_time": "Sat Jun 28 2025 21:14:48 GMT+0530 (India Standard Time)",
+        "__v": 0
+    } 
+]
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/messaging-db` |
+| `PORT` | Application port | `3000` |
+| `KAFKA_BROKER` | Kafka broker address | `localhost:9092` |
+
+### Kafka Topics
+
+- **client-messages**: Main topic for client-to-client communication
+- **client-messages-dlq**: Dead letter queue for failed messages
+
+## 🔄 Message Flow
+
+1. **Client A** sends a POST request to `/send-message`
+2. **Producer Service** validates the message and publishes to `client-messages` topic
+3. **Consumer Service** (Client B) receives the message from Kafka
+4. **Message Filter** checks if the message is intended for Client B (`to === 'clientB'`)
+5. **Message Storage** saves the message to MongoDB
+6. **Retry Logic** handles failed message processing with exponential backoff
+7. **Dead Letter Queue** stores messages that fail after maximum retry attempts
+
+## 🛡️ Error Handling & Resilience
+
+### Retry Strategy
+- **Initial Retry Delay**: 1 second
+- **Maximum Retries**: 3 attempts
+- **Backoff Strategy**: Exponential with jitter
+- **Dead Letter Queue**: Failed messages after max retries
+
+### Message Validation
+- Schema validation using class-validator
+- Required fields: `from`, `to`, `message`
+- Message length limits and sanitization
+
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+docker-compose up -d
+pnpm start:dev
+```
+
+<!-- **Deploy Link**: [Your deployment URL here] -->
+
+## 🎥 Demo
+
+**Recorded Video**: [Link to your demo video]
+
+## 📚 Technologies Used
+
+- **NestJS**: Progressive Node.js framework
+- **Apache Kafka**: Distributed streaming platform
+- **MongoDB**: Document database for message persistence
+- **Docker**: Containerization platform
+- **TypeScript**: Type-safe JavaScript
+- **PNPM**: Fast, disk space efficient package manager
+
+## 📞 Support
+
+For questions or issues, please open an issue in the GitHub repository or contact the development team.
+
+---
+
+**Repository**: [GitHub Repository Link]  
+<!-- **Live Demo**: [Deployment Link]   -->
+**Video Demo**: [Recorded Video Link]

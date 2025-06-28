@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { KafkaService } from './kafka.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ClientsModule.register([
       {
         name: 'KAFKA_SERVICE',
@@ -11,7 +15,7 @@ import { KafkaService } from './kafka.service';
         options: {
           client: {
             clientId: 'my-app-client',
-            brokers: ['localhost:9092'],
+            brokers: [`${process.env.KAFKA_BROKER}`],
           },
           consumer: {
             allowAutoTopicCreation: true,
