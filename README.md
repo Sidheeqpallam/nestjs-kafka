@@ -42,8 +42,8 @@ This project demonstrates the implementation of a client-to-client messaging sys
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd client-messaging-kafka
+   git clone https://github.com/Sidheeqpallam/nestjs-kafka
+   cd nestjs-kafka
    ```
 
 2. **Install dependencies**
@@ -218,7 +218,7 @@ pnpm start:dev
 
 ## 🎥 Demo
 
-**Recorded Video**: [Link to your demo video]
+**Recorded Video**: [Recorded Video Link](https://www.loom.com/share/61b005b763cc47169f6258f192c6dd14?sid=e5987ad0-e9dc-4de9-b2bf-fdf930005a17)
 
 ## 📚 Technologies Used
 
@@ -235,6 +235,6 @@ For questions or issues, please open an issue in the GitHub repository or contac
 
 ---
 
-**Repository**: [GitHub Repository Link]  
 <!-- **Live Demo**: [Deployment Link]   -->
-**Video Demo**: [Recorded Video Link]
+- 🎥 **Video Demo:** [Watch on Loom](https://www.loom.com/share/61b005b763cc47169f6258f192c6dd14?sid=e5987ad0-e9dc-4de9-b2bf-fdf930005a17)  
+- 📬 **API Documentation:** [View on Postman](https://documenter.getpostman.com/view/22355633/2sB2xFfnsS)
